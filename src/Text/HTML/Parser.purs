@@ -7,6 +7,7 @@ import Data.Char
 import Data.Either
 import Data.Foldable
 import Data.List
+import Data.Maybe
 import Data.Tuple
 
 import Text.Parsing.Parser
@@ -44,22 +45,35 @@ instance eqAttribute :: Eq Attribute where
 instance showAttribute :: Show Attribute where
   show (Attribute k v) = "Attribute " ++ show k ++ " " ++ show v
 
-parseHTML :: String -> Either ParseError HTML
-parseHTML s = runParser s $ (try parseElement <|> parseVoidElement) <* eof
+-- HTML parser
+
+parseHTML :: String -> Either ParseError (List HTML)
+parseHTML s = runParser s $ many parseNode <* eof
+  where
+  parseNode =
+    try parseElement <|>
+    try parseVoidElement <|>
+    parseTextNode
 
 parseElement = do
-  name <- parseOpenTag
-  children <- many parseElement
+  Tuple name attrs <- parseOpenTag
+  children <- many $
+    try parseElement <|>
+    try parseVoidElement <|>
+    parseTextNode
   parseCloseTag name
-  return $ Element name Nil children
+  return $ Element name attrs children
 
-parseOpenTag :: Parser String String
+parseOpenTag :: Parser String (Tuple String (List Attribute))
 parseOpenTag = do
-  notFollowedBy $ string "</"
+  notClosedTag
   char '<'
   name <- parseTagName
+  spaces
+  attrs <- parseAttributes
+  spaces
   char '>'
-  return name
+  return $ Tuple name attrs
 
 parseCloseTag :: String -> Parser String Char
 parseCloseTag name = do
@@ -67,14 +81,54 @@ parseCloseTag name = do
   string name
   char '>'
 
+notClosedTag :: Parser String Unit
+notClosedTag = notFollowedBy $ string "</"
+
 parseVoidElement = do
+  notClosedTag
   char '<'
   name <- parseTagName
   string "/>"
   return $ VoidElement name Nil
 
 parseTagName :: Parser String String
-parseTagName = fold <<< map toString <$> some (satisfy isAlphaNumeric)
+parseTagName = catChars <$> some (satisfy isAlphaNumeric)
+
+parseTextNode :: Parser String HTML
+parseTextNode = TextNode <<< catChars <$> some (noneOf ['<', '>'])
+
+parseAttributes :: Parser String (List Attribute)
+parseAttributes = sepBy parseAttribute spaces
+
+parseAttribute :: Parser String Attribute
+parseAttribute = do
+  name <- parseAttributeName
+  spaces
+  maybeEquals <- optionMaybe $ char '='
+  value <- case maybeEquals of
+    Nothing -> return ""
+    Just _ -> parseAttributeValue
+  return $ Attribute name value
+
+parseAttributeName :: Parser String String
+parseAttributeName = catChars <$> some (noneOf [' ', '"', '\'', '>', '/', '='])
+
+parseAttributeValue :: Parser String String
+parseAttributeValue = do
+  maybeOpenChar <- optionMaybe $ spaces *> (char '"' <|> char '\'')
+  case maybeOpenChar of
+    Nothing -> catChars <$> many (noneOf [' ', '>'])
+    Just openChar -> do
+      value <- catChars <$> many (noneOf [openChar])
+      char openChar
+      return value
+
+spaces :: Parser String Unit
+spaces = void $ many $ char ' '
+
+-- catChars :: forall f. (Foldable f, Functor f) => f Char -> String
+catChars :: List Char -> String
+catChars = fold <<< map toString
 
 isAlphaNumeric :: Char -> Boolean
 isAlphaNumeric c =
@@ -86,3 +140,19 @@ isAlphaNumeric c =
 
 prettyError (ParseError e@{ position = Position pos }) =
   e.message ++ " (" ++ show pos.line ++ "," ++ show pos.column ++ ")"
+
+-- Helpers to write ASTs easier.
+
+element
+  :: forall f g. (Foldable f, Foldable g)
+  => String -> f Attribute -> g HTML -> HTML
+element name attrs children = Element name (toList attrs) (toList children)
+
+voidElement
+  :: forall f. (Foldable f)
+  => String -> f Attribute -> HTML
+voidElement name attrs = VoidElement name (toList attrs)
+
+textNode = TextNode
+
+commentNode = CommentNode

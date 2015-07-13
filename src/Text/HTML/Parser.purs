@@ -48,19 +48,19 @@ instance showAttribute :: Show Attribute where
 -- HTML parser
 
 parseHTML :: String -> Either ParseError (List HTML)
-parseHTML s = runParser s $ many parseNode <* eof
-  where
-  parseNode =
-    try parseElement <|>
-    try parseVoidElement <|>
-    parseTextNode
+parseHTML s = runParser s $ parseNodes <* eof
+
+parseNode =
+  -- Error: parseElement may not be defined in the current scope
+  try parseElement <|>
+  try parseVoidElement <|>
+  parseTextNode
+
+parseNodes = many parseNode
 
 parseElement = do
   Tuple name attrs <- parseOpenTag
-  children <- many $
-    try parseElement <|>
-    try parseVoidElement <|>
-    parseTextNode
+  children <- parseNodes
   parseCloseTag name
   return $ Element name attrs children
 

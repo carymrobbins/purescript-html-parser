@@ -55,6 +55,11 @@ main = do
       ] []
     ]
 
+  assertParse """<div id="foo"><img src="puppies.gif"/></div>"""
+    [ element "div" [Attribute "id" "foo"]
+      [ voidElement "img" [Attribute "src" "puppies.gif"] ]
+    ]
+
 assertParse
   :: forall eff f. (Foldable f)
   => String -> f HTML -> Eff (console :: CONSOLE | eff) Unit

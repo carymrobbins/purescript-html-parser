@@ -88,8 +88,11 @@ parseVoidElement = do
   notClosedTag
   char '<'
   name <- parseTagName
+  spaces
+  attrs <- parseAttributes
+  spaces
   string "/>"
-  return $ VoidElement name Nil
+  return $ VoidElement name attrs
 
 parseTagName :: Parser String String
 parseTagName = catChars <$> some (satisfy isAlphaNumeric)

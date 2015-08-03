@@ -8,3 +8,15 @@ exports.exit = function (exitCode) {
     process.exit(exitCode);
   };
 };
+
+var globalExitStatus = 0;
+
+exports.setExitStatus = function (exitCode) {
+  return function () {
+    globalExitStatus = exitCode;
+  };
+};
+
+exports.getExitStatus = function () {
+  return globalExitStatus;
+};

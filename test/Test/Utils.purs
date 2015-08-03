@@ -7,11 +7,19 @@ import Control.Monad.Eff.Console
 import Data.Foldable
 import Data.Maybe
 
+runTest :: forall eff. Eff eff Unit -> Eff eff Unit
+runTest test = do
+  test
+  status <- getExitStatus
+  exit status
+
 success :: forall eff. String -> Eff (console :: CONSOLE | eff) Unit
 success m = log $ color Green $ "Passed: " ++ m
 
 fail :: forall eff. String -> Eff (console :: CONSOLE | eff) Unit
-fail m = log $ color Red $ "Failed: " ++ m
+fail m = do
+  setExitStatus 1
+  log $ color Red $ "Failed: " ++ m
 
 assert :: forall eff. String -> Boolean -> Eff (console :: CONSOLE | eff) Unit
 assert m b | b = success m
@@ -56,3 +64,7 @@ color c s = case c of
   Purple -> "\x1b[35m" ++ s ++ "\x1b[39;49m"
 
 foreign import exit :: forall eff. Int -> Eff eff Unit
+
+foreign import setExitStatus :: forall eff. Int -> Eff eff Unit
+
+foreign import getExitStatus :: forall eff. Eff eff Int

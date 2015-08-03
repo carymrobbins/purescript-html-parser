@@ -6,11 +6,14 @@ import Control.Monad.Eff.Console
 import Data.Either
 import Data.Foldable
 import Data.List
+import Text.Parsing.StringParser (ParseError(..))
 
 import Text.HTML.Parser
+import Text.HTML.Parser.Array
+
 import Test.Utils
 
-main = do
+main = runTest do
   assertParse "<html></html>"
     [ element "html" [] [] ]
 
@@ -64,11 +67,10 @@ assertParse
   :: forall eff f. (Foldable f)
   => String -> f HTML -> Eff (console :: CONSOLE | eff) Unit
 assertParse input expected = case parseHTML input of
-  Left e ->
-    fail $ "Parse error for " ++ show input ++ "\n  Error: " ++ prettyError e
+  Left (ParseError e) ->
+    fail $ "Parse error for " ++ show input ++ "\n  Error: " ++ e
   Right actual | actual /= expected' ->
     fail $ "Expected: " ++ show expected' ++ "\n  Actual: " ++ show actual
   _ -> success input
   where
   expected' = toList expected
-

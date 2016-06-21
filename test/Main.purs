@@ -68,9 +68,9 @@ assertParse
   => String -> f HTML -> Eff (console :: CONSOLE | eff) Unit
 assertParse input expected = case parseHTML input of
   Left (ParseError e) ->
-    fail $ "Parse error for " ++ show input ++ "\n  Error: " ++ e
+    fail $ "Parse error for " <> show input <> "\n  Error: " <> e
   Right actual | actual /= expected' ->
-    fail $ "Expected: " ++ show expected' ++ "\n  Actual: " ++ show actual
+    fail $ "Expected: " <> show expected' <> "\n  Actual: " <> show actual
   _ -> success input
   where
-  expected' = toList expected
+  expected' = fromFoldable expected

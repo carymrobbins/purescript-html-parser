@@ -3,7 +3,7 @@ module Text.HTML.Parser
   , parseHTML
   ) where
 
-import qualified Text.HTML.Parser.Internal as I
+import Text.HTML.Parser.Internal as I
 import Text.HTML.Parser.Types
 
 parseHTML = I.parseHTML

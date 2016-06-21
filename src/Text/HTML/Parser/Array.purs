@@ -10,12 +10,12 @@ import Text.HTML.Parser.Types
 element
   :: forall f g. (Foldable f, Foldable g)
   => String -> f Attribute -> g HTML -> HTML
-element name attrs children = Element name (toList attrs) (toList children)
+element name attrs children = Element name (fromFoldable attrs) (fromFoldable children)
 
 voidElement
   :: forall f. (Foldable f)
   => String -> f Attribute -> HTML
-voidElement name attrs = VoidElement name (toList attrs)
+voidElement name attrs = VoidElement name (fromFoldable attrs)
 
 textNode = TextNode
 

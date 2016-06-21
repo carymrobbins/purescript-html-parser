@@ -26,11 +26,11 @@ instance eqHTML :: Eq HTML where
 
 instance showHTML :: Show HTML where
   show (Element name attrs children) =
-    "Element " ++ show name ++ " (" ++ show attrs ++ ") (" ++ show children ++ ")"
+    "Element " <> show name <> " (" <> show attrs <> ") (" <> show children <> ")"
   show (VoidElement name attrs) =
-    "VoidElement " ++ show name ++ " (" ++ show attrs ++ ")"
-  show (TextNode text) = "TextNode " ++ show text
-  show (CommentNode text) = "CommentNode " ++ show text
+    "VoidElement " <> show name <> " (" <> show attrs <> ")"
+  show (TextNode text) = "TextNode " <> show text
+  show (CommentNode text) = "CommentNode " <> show text
 
 data Attribute = Attribute String String
 
@@ -38,5 +38,5 @@ instance eqAttribute :: Eq Attribute where
   eq (Attribute k1 v1) (Attribute k2 v2) = k1 == k2 && v1 == v2
 
 instance showAttribute :: Show Attribute where
-  show (Attribute k v) = "Attribute " ++ show k ++ " " ++ show v
+  show (Attribute k v) = "Attribute " <> show k <> " " <> show v
 

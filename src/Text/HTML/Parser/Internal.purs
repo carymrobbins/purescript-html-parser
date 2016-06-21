@@ -10,7 +10,7 @@ import Data.Tuple
 
 import Text.Parsing.StringParser
 import Text.Parsing.StringParser.Combinators
-import Text.Parsing.StringParser.String
+import Text.Parsing.StringParser.String (eof, string)
 
 import Text.HTML.Parser.Combinators
 import Text.HTML.Parser.Types
@@ -22,7 +22,7 @@ parseElement = do
   Tuple name attrs <- parseOpenTag
   children <- many parseNode
   parseCloseTag name
-  return $ Element name attrs children
+  pure $ Element name attrs children
 
 parseNode = fix \_ ->
   try parseElement <|>
@@ -38,7 +38,7 @@ parseOpenTag = do
   attrs <- parseAttributes
   skipSpaces
   char '>'
-  return $ Tuple name attrs
+  pure $ Tuple name attrs
 
 parseCloseTag :: String -> Parser Char
 parseCloseTag name = do
@@ -57,7 +57,7 @@ parseVoidElement = do
   attrs <- parseAttributes
   skipSpaces
   string "/>"
-  return $ VoidElement name attrs
+  pure $ VoidElement name attrs
 
 parseTagName :: Parser String
 parseTagName = catChars <$> many1 (satisfy isAlphaNumeric)
@@ -74,9 +74,9 @@ parseAttribute = do
   skipSpaces
   maybeEquals <- optionMaybe $ char '='
   value <- case maybeEquals of
-    Nothing -> return ""
+    Nothing -> pure ""
     Just _ -> parseAttributeValue
-  return $ Attribute name value
+  pure $ Attribute name value
 
 parseAttributeName :: Parser String
 parseAttributeName = catChars <$> many1 (noneOf [' ', '"', '\'', '>', '/', '='])
@@ -89,4 +89,4 @@ parseAttributeValue = do
     Just openChar -> do
       value <- catChars <$> many (noneOf [openChar])
       char openChar
-      return value
+      pure value

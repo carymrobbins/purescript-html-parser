@@ -1,6 +1,6 @@
 {
-  "name": "purescript-html-gen",
-  "version": "1.0.0",
+  "name": "purescript-html-parser",
+  "version": "2.0.0",
   "moduleType": [
     "node"
   ],
@@ -11,8 +11,8 @@
     "output"
   ],
   "dependencies": {
-    "purescript-console": "^1.0.0",
-    "purescript-quickcheck": "~1.0.0",
-    "purescript-string-parsers": "~1.0.1"
+    "purescript-console": "^2.0.0",
+    "purescript-quickcheck": "~2.0.0",
+    "purescript-string-parsers": "~2.0.0"
   }
 }

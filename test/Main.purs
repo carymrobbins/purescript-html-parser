@@ -64,6 +64,21 @@ main = runTest do
       [ voidElement "img" [Attribute "src" "puppies.gif"] ]
     ]
 
+    -- See if whitespace after attributes affect parsing...
+  assertParse """<br class="solid" />"""
+    [ voidElement "br" [Attribute "class" "solid"]
+    ]
+
+    -- See if unquoted attribute value is parsed properly...
+  assertParse """<br class=solid/>"""
+    [ voidElement "br" [Attribute "class" "solid"]
+    ]
+
+    -- See if spaces around the equals sign affect attribute parsing...
+  assertParse """<br class = "solid"/>"""
+    [ voidElement "br" [Attribute "class" "solid"]
+    ]
+
 assertParse
   :: forall eff f. (Foldable f)
   => String -> f HTML -> Eff (console :: CONSOLE | eff) Unit

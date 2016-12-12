@@ -4,7 +4,7 @@ import Prelude
 import Control.Alt
 import Control.Apply
 import Data.Char (toCharCode)
-import Data.String (singleton)
+import Data.String (singleton, joinWith)
 import Data.Foldable
 import Data.List (List(..))
 import Data.String.Unsafe as Unsafe
@@ -22,7 +22,7 @@ satisfy :: (Char -> Boolean) -> Parser Char
 satisfy f = try do
   c <- anyChar
   if f c then pure c
-         else fail "Character did not satisfy predicate"
+         else fail $ joinWith "" [ "Character ", (show c),  " did not satisfy predicate" ]
 
 -- | Match the specified character
 char :: Char -> Parser Char

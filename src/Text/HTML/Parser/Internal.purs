@@ -85,7 +85,7 @@ parseAttributeValue :: Parser String
 parseAttributeValue = do
   maybeOpenChar <- optionMaybe $ skipSpaces *> (char '"' <|> char '\'')
   case maybeOpenChar of
-    Nothing -> catChars <$> many (noneOf [' ', '>'])
+    Nothing -> catChars <$> many1 (noneOf [' ', '\t', '\n', '\r', '>', '/'])
     Just openChar -> do
       value <- catChars <$> many (noneOf [openChar])
       char openChar

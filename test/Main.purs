@@ -51,11 +51,11 @@ main = runTest do
       ] []
     ]
 
-  assertParse """<div id = 'foo' disabled class =bar"<></div>"""
+  assertParse """<div id = 'foo' disabled class =bar></div>"""
     [ element "div"
       [ Attribute "id" "foo"
       , Attribute "disabled" ""
-      , Attribute "class" """bar"<"""
+      , Attribute "class" """bar"""
       ] []
     ]
 

@@ -13,6 +13,7 @@ import Text.HTML.Parser.Array
 
 import Test.Utils
 
+main :: Eff (console :: CONSOLE) Unit
 main = runTest do
   assertParse "<html></html>"
     [ element "html" [] [] ]

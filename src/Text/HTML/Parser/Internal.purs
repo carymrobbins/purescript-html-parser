@@ -66,7 +66,7 @@ parseTextNode :: Parser HTML
 parseTextNode = TextNode <<< catChars <$> many1 (noneOf ['<', '>'])
 
 parseAttributes :: Parser (List Attribute)
-parseAttributes = sepBy parseAttribute skipSpaces
+parseAttributes = sepEndBy parseAttribute skipSpaces
 
 parseAttribute :: Parser Attribute
 parseAttribute = do

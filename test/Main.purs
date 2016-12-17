@@ -79,6 +79,13 @@ main = runTest do
     [ voidElement "br" [Attribute "class" "solid"]
     ]
 
+    -- See if spaces around the equals sign affect attribute parsing if argument value is not
+    --        quoted...
+
+  assertParse """<br class = solid/>"""
+    [ voidElement "br" [Attribute "class" "solid"]
+    ]
+
 assertParse
   :: forall eff f. (Foldable f)
   => String -> f HTML -> Eff (console :: CONSOLE | eff) Unit

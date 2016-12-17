@@ -14,5 +14,8 @@
     "purescript-console": "^2.0.0",
     "purescript-quickcheck": "~2.0.0",
     "purescript-string-parsers": "~2.0.0"
+  },
+  "resolutions": {
+    "purescript-lists": "^3.1.0"
   }
 }

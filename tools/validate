@@ -1,0 +1,33 @@
+#!/bin/bash
+
+PSC_REQUIRED_VERSION=0.10.3
+PSC_ACTUAL_VERSION=$(psc --version)
+
+has_command() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+missing_commands=()
+
+for c in psc bower pulp; do
+  has_command "$c" || missing_commands+=("$c")
+done
+
+if [ "${#missing_commands[@]}" -ne 0 ]; then
+  >&2 echo "The following commands are missing from your PATH:"
+  for c in "${missing_commands[@]}"; do
+    if [ "$c" = "psc" ]; then
+      >&2 echo "  * psc $PSC_REQUIRED_VERSION"
+    else
+      >&2 echo "  * $c"
+    fi
+  done
+  exit 1
+fi
+
+if [ "$PSC_ACTUAL_VERSION" != "$PSC_REQUIRED_VERSION" ]; then
+  >&2 echo "Requires psc $PSC_REQUIRED_VERSION but found psc $PSC_ACTUAL_VERSION on the PATH"
+  exit 1
+fi
+
+echo OK

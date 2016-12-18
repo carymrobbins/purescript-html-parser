@@ -22,3 +22,26 @@ Right (Cons (Element "html" (Nil)
 ```
 
 See the [test suite](test/Main.purs) for more examples.
+
+## Building
+
+You will need the following tools on your `PATH` -
+  * psc 0.10.3 (see the [PureScript releases page](https://github.com/purescript/purescript/releases))
+  * [pulp](https://github.com/bodil/pulp)
+  * [bower](https://bower.io/)
+
+To install dependencies, build the project, and run tests, you can use a single command -
+
+```
+% make deps build test
+```
+
+If you are only compiling the project and do not need to install dependencies or
+run tests, you can simply run `make` without arguments -
+
+```
+% make
+```
+
+Note that using `make` validates that you have the appropriate tools available. If you need
+to bypass this, you can simply delegate to using `bower` and `pulp` manually as desired.

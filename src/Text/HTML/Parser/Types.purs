@@ -1,13 +1,17 @@
 module Text.HTML.Parser.Types where
 
 import Prelude
-import Data.List
+import Data.List (List)
+import Data.Either (Either)
+import Text.Parsing.StringParser (ParseError)
 
 data HTML
   = Element String (List Attribute) (List HTML)
   | VoidElement String (List Attribute)
   | TextNode String
   | CommentNode String
+
+type ParseResult = Either ParseError (List HTML)
 
 instance eqHTML :: Eq HTML where
   eq (Element name1 attrs1 children1) (Element name2 attrs2 children2) =
@@ -39,4 +43,3 @@ instance eqAttribute :: Eq Attribute where
 
 instance showAttribute :: Show Attribute where
   show (Attribute k v) = "Attribute " <> show k <> " " <> show v
-

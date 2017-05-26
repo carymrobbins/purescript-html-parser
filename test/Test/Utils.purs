@@ -1,12 +1,10 @@
 module Test.Utils where
 
 import Prelude
-import Control.Apply ((*>))
-import Control.Monad.Eff
-import Control.Monad.Eff.Console
-import Data.Foldable
-import Data.Maybe
-import Data.String
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE, log)
+import Data.Maybe (Maybe(..))
+import Data.String (length)
 
 runTest :: forall eff. Eff eff Unit -> Eff eff Unit
 runTest test = do
@@ -26,7 +24,9 @@ assert :: forall eff. String -> Boolean -> Eff (console :: CONSOLE | eff) Unit
 assert m b | b = success m
 assert m _     = fail m
 
-assertEq :: forall a eff. (Eq a, Show a) => String -> a -> a -> Eff (console :: CONSOLE | eff) Unit
+assertEq
+  :: forall a eff. Eq a => Show a
+  => String -> a -> a -> Eff (console :: CONSOLE | eff) Unit
 assertEq m x y | x == y = assert m true
 assertEq m x y = assert (m <> "\n  " <> extra) false
   where

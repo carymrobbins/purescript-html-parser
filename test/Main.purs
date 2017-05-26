@@ -1,17 +1,17 @@
 module Test.Main where
 
 import Prelude
-import Control.Monad.Eff
-import Control.Monad.Eff.Console
-import Data.Either
-import Data.Foldable
-import Data.List
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE)
+import Data.Either (Either(..))
+import Data.Foldable (class Foldable)
+import Data.List (fromFoldable)
 import Text.Parsing.StringParser (ParseError(..))
 
-import Text.HTML.Parser
-import Text.HTML.Parser.Array
+import Text.HTML.Parser (Attribute(..), HTML, parseHTML)
+import Text.HTML.Parser.Array (element, textNode, voidElement)
 
-import Test.Utils
+import Test.Utils (fail, runTest, success)
 
 main :: Eff (console :: CONSOLE) Unit
 main = runTest do

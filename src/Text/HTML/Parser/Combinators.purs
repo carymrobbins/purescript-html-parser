@@ -1,17 +1,16 @@
 module Text.HTML.Parser.Combinators where
 
 import Prelude
-import Control.Alt
-import Control.Apply
+import Control.Alt ((<|>))
 import Data.Char (toCharCode)
 import Data.String (singleton, joinWith)
-import Data.Foldable
-import Data.List (List(..))
+import Data.Foldable (fold, notElem)
+import Data.List (List)
 import Data.String.Unsafe as Unsafe
 
-import Text.Parsing.StringParser
-import Text.Parsing.StringParser.Combinators
-import Text.Parsing.StringParser.String
+import Text.Parsing.StringParser (Parser, fail, try)
+import Text.Parsing.StringParser.Combinators (many)
+import Text.Parsing.StringParser.String (anyChar, string)
 
 -- | Fail if the specified parser matches.
 notFollowedBy :: forall a. Parser a -> Parser Unit
@@ -48,7 +47,7 @@ isAlphaNumeric c =
 -- | Skip whitespace characters.
 skipSpaces :: Parser Unit
 skipSpaces = do
-  whiteSpace
+  _ <- whiteSpace
   pure unit
 
 -- | Match any character not in the array.

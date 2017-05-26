@@ -1,17 +1,25 @@
-.PHONY: build test deps clean validate
+.PHONY: default build quick test deps clean
 
-build: 	validate
-	pulp build
+default: clean build test
 
-test: 	validate
-	pulp test
+build: deps quick
 
-deps: 	validate
-	bower i
+quick:
+	npm run pulp -- build
+
+watch:
+	npm run pulp -- --watch build
+
+test:
+	npm run pulp -- test
+
+test-watch:
+	npm run pulp -- --watch test
+
+deps:
+	npm install
+	npm run bower -- i
 
 clean:
 	rm -rf output
 	rm -rf bower_components
-
-validate:
-	tools/validate

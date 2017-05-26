@@ -1,29 +1,36 @@
 module Text.HTML.Parser.Internal where
 
 import Prelude
-import Control.Alt
-import Control.Apply
-import Data.Either
-import Data.List (List(..))
-import Data.Maybe
-import Data.Tuple
+import Control.Alt ((<|>))
+import Data.Either (Either)
+import Data.List (List)
+import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
 
-import Text.Parsing.StringParser
-import Text.Parsing.StringParser.Combinators
+import Text.Parsing.StringParser (
+  ParseError, Parser, runParser, try
+)
+import Text.Parsing.StringParser.Combinators (
+  fix, many, many1, optionMaybe, sepEndBy
+)
 import Text.Parsing.StringParser.String (eof, string)
 
-import Text.HTML.Parser.Combinators
-import Text.HTML.Parser.Types
+import Text.HTML.Parser.Combinators (
+  catChars, char, isAlphaNumeric, noneOf, notFollowedBy, satisfy, skipSpaces
+)
+import Text.HTML.Parser.Types (Attribute(..), HTML(..))
 
 parseHTML :: String -> Either ParseError (List HTML)
 parseHTML s = flip runParser s $ many parseNode <* eof
 
+parseElement :: Parser HTML
 parseElement = do
   Tuple name attrs <- parseOpenTag
   children <- many parseNode
-  parseCloseTag name
+  _ <- parseCloseTag name
   pure $ Element name attrs children
 
+parseNode :: Parser HTML
 parseNode = fix \_ ->
   try parseElement <|>
   try parseVoidElement <|>
@@ -32,31 +39,32 @@ parseNode = fix \_ ->
 parseOpenTag :: Parser (Tuple String (List Attribute))
 parseOpenTag = do
   notClosedTag
-  char '<'
+  _ <- char '<'
   name <- parseTagName
   skipSpaces
   attrs <- parseAttributes
   skipSpaces
-  char '>'
+  _ <- char '>'
   pure $ Tuple name attrs
 
 parseCloseTag :: String -> Parser Char
 parseCloseTag name = do
-  string "</"
-  string name
+  _ <- string "</"
+  _ <- string name
   char '>'
 
 notClosedTag :: Parser Unit
 notClosedTag = notFollowedBy $ string "</"
 
+parseVoidElement :: Parser HTML
 parseVoidElement = do
   notClosedTag
-  char '<'
+  _ <- char '<'
   name <- parseTagName
   skipSpaces
   attrs <- parseAttributes
   skipSpaces
-  string "/>"
+  _ <- string "/>"
   pure $ VoidElement name attrs
 
 parseTagName :: Parser String
@@ -90,5 +98,5 @@ parseAttributeValue = do
     Nothing -> catChars <$> many1 (noneOf [' ', '\t', '\n', '\r', '"', '\'', '=', '<', '>', '`', '/'])
     Just openChar -> do
       value <- catChars <$> many (noneOf [openChar])
-      char openChar
+      _ <- char openChar
       pure value

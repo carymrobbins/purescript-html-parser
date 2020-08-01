@@ -1,8 +1,7 @@
 module Test.Main where
 
-import Prelude
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE)
+import Prelude (Unit, discard, show, ($), (/=), (<>))
+import Effect (Effect)
 import Data.Either (Either(..))
 import Data.Foldable (class Foldable)
 import Data.List (fromFoldable)
@@ -13,7 +12,7 @@ import Text.HTML.Parser.Array (element, textNode, voidElement)
 
 import Test.Utils (fail, runTest, success)
 
-main :: Eff (console :: CONSOLE) Unit
+main :: Effect Unit
 main = runTest do
   assertParse "<html></html>"
     [ element "html" [] [] ]
@@ -87,8 +86,8 @@ main = runTest do
     ]
 
 assertParse
-  :: forall eff f. (Foldable f)
-  => String -> f HTML -> Eff (console :: CONSOLE | eff) Unit
+  :: forall f. (Foldable f)
+  => String -> f HTML -> Effect Unit
 assertParse input expected = case parseHTML input of
   Left (ParseError e) ->
     fail $ "Parse error for " <> show input <> "\n  Error: " <> e

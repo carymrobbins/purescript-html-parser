@@ -5,3 +5,9 @@ bower_components/
 node_modules/
 output/
 *.iml
+.purs-repl
+/package-lock.json
+/yarn.lock
+/*.log
+/.spago
+.psc-ide-port

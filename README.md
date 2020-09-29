@@ -1,5 +1,7 @@
 # purescript-html-parser
 
+[![Build](https://img.shields.io/travis/carymrobbins/purescript-html-parser.svg?logo=travis)](http://travis-ci.org/carymrobbins/purescript-html-parser)
+
 An HTML parser for PureScript.
 
 ## Goals

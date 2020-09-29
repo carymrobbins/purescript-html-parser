@@ -1,32 +1,32 @@
 module Test.Utils where
 
-import Prelude
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Prelude (class Eq, class Show, Unit, bind, const, discard, pure, show, unit, ($), (*>), (<>), (==), (>))
+import Effect (Effect)
+import Effect.Class.Console (log)
 import Data.Maybe (Maybe(..))
 import Data.String (length)
 
-runTest :: forall eff. Eff eff Unit -> Eff eff Unit
+runTest :: Effect Unit -> Effect Unit
 runTest test = do
   test
   status <- getExitStatus
   exit status
 
-success :: forall eff. String -> Eff (console :: CONSOLE | eff) Unit
+success :: String -> Effect Unit
 success m = log $ color Green $ "Passed: " <> m
 
-fail :: forall eff. String -> Eff (console :: CONSOLE | eff) Unit
+fail :: String -> Effect Unit
 fail m = do
   setExitStatus 1
   log $ color Red $ "Failed: " <> m
 
-assert :: forall eff. String -> Boolean -> Eff (console :: CONSOLE | eff) Unit
+assert :: String -> Boolean -> Effect Unit
 assert m b | b = success m
 assert m _     = fail m
 
 assertEq
-  :: forall a eff. Eq a => Show a
-  => String -> a -> a -> Eff (console :: CONSOLE | eff) Unit
+  :: forall a. Eq a => Show a
+  => String -> a -> a -> Effect Unit
 assertEq m x y | x == y = assert m true
 assertEq m x y = assert (m <> "\n  " <> extra) false
   where
@@ -34,15 +34,15 @@ assertEq m x y = assert (m <> "\n  " <> extra) false
   longExtra = show x <> "\n    /=\n  " <> show y
   extra = if length shortExtra > 100 then longExtra else shortExtra
 
-assertJustWith :: forall a eff.
+assertJustWith :: forall a.
                   String
                -> Maybe a
-               -> (a -> Eff (console :: CONSOLE | eff) Unit)
-               -> Eff (console :: CONSOLE | eff) Unit
+               -> (a -> Effect Unit)
+               -> Effect Unit
 assertJustWith m (Just a) f = success m *> f a
 assertJustWith m Nothing _ = fail m
 
-assertJust :: forall a eff. String -> Maybe a -> Eff (console :: CONSOLE | eff) Unit
+assertJust :: forall a. String -> Maybe a -> Effect Unit
 assertJust m mA = assertJustWith m mA $ const $ pure $ unit
 
 data Color
@@ -64,8 +64,8 @@ color c s = case c of
   Blue   -> "\x1b[34m" <> s <> "\x1b[39;49m"
   Purple -> "\x1b[35m" <> s <> "\x1b[39;49m"
 
-foreign import exit :: forall eff. Int -> Eff eff Unit
+foreign import exit :: Int -> Effect Unit
 
-foreign import setExitStatus :: forall eff. Int -> Eff eff Unit
+foreign import setExitStatus :: Int -> Effect Unit
 
-foreign import getExitStatus :: forall eff. Eff eff Int
+foreign import getExitStatus :: Effect Int

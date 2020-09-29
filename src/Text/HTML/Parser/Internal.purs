@@ -1,6 +1,6 @@
 module Text.HTML.Parser.Internal where
 
-import Prelude
+import Prelude (Unit, bind, discard, flip, pure, ($), (<$>), (<*), (<<<))
 import Control.Alt ((<|>))
 import Data.Either (Either)
 import Data.List (List)
@@ -13,11 +13,9 @@ import Text.Parsing.StringParser (
 import Text.Parsing.StringParser.Combinators (
   fix, many, many1, optionMaybe, sepEndBy
 )
-import Text.Parsing.StringParser.String (eof, string)
+import Text.Parsing.StringParser.CodeUnits (char, eof, noneOf, satisfy, skipSpaces, string)
 
-import Text.HTML.Parser.Combinators (
-  catChars, char, isAlphaNumeric, noneOf, notFollowedBy, satisfy, skipSpaces
-)
+import Text.HTML.Parser.Combinators (fromChars, isAlphaNumeric, notFollowedBy)
 import Text.HTML.Parser.Types (Attribute(..), HTML(..))
 
 parseHTML :: String -> Either ParseError (List HTML)
@@ -68,10 +66,10 @@ parseVoidElement = do
   pure $ VoidElement name attrs
 
 parseTagName :: Parser String
-parseTagName = catChars <$> many1 (satisfy isAlphaNumeric)
+parseTagName = fromChars <$> many1 (satisfy isAlphaNumeric)
 
 parseTextNode :: Parser HTML
-parseTextNode = TextNode <<< catChars <$> many1 (noneOf ['<', '>'])
+parseTextNode = TextNode <<< fromChars <$> many1 (noneOf ['<', '>'])
 
 parseAttributes :: Parser (List Attribute)
 parseAttributes = sepEndBy parseAttribute skipSpaces
@@ -89,14 +87,14 @@ parseAttribute = do
   pure $ Attribute name value
 
 parseAttributeName :: Parser String
-parseAttributeName = catChars <$> many1 (noneOf [' ', '"', '\'', '>', '/', '='])
+parseAttributeName = fromChars <$> many1 (noneOf [' ', '"', '\'', '>', '/', '='])
 
 parseAttributeValue :: Parser String
 parseAttributeValue = do
   maybeOpenChar <- optionMaybe (char '"' <|> char '\'')
   case maybeOpenChar of
-    Nothing -> catChars <$> many1 (noneOf [' ', '\t', '\n', '\r', '"', '\'', '=', '<', '>', '`', '/'])
+    Nothing -> fromChars <$> many1 (noneOf [' ', '\t', '\n', '\r', '"', '\'', '=', '<', '>', '`', '/'])
     Just openChar -> do
-      value <- catChars <$> many (noneOf [openChar])
+      value <- fromChars <$> many (noneOf [openChar])
       _ <- char openChar
       pure value
